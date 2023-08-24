@@ -1,0 +1,1 @@
+include(treelist/treelist.pri)
