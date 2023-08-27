@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>images/1.png</file>
+        <file>images/2.png</file>
+        <file>images/3.png</file>
+    </qresource>
+    <qresource prefix="/translate">
+        <file>qtbase_en.qm</file>
+        <file>qtbase_ru.qm</file>
+        <file>treelistcontrol_en.qm</file>
+        <file>treelistcontrol_ru.qm</file>
+    </qresource>
+</RCC>

@@ -1,58 +1,25 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QStandardItemModel>
-#include <QMenu>
-#include <QDebug>
+#include <QTimer>
+#include <QTranslator>
 
-#include "src/widgets/treelist/dtreelist.h"
+#include "subwindows/wframe1.h"
+#include "subwindows/wframe2.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    m_translator()
 {
     ui->setupUi(this);
 
-    DTreeList *tree1 = new DTreeList(this);
-    ui->tree1->layout()->addWidget(tree1);
+    // language
+    connect(ui->actionEnglish, &QAction::triggered, this, std::bind(&MainWindow::changeLanguage, this, language::english));
+    connect(ui->actionRussian, &QAction::triggered, this, std::bind(&MainWindow::changeLanguage, this, language::russian));
 
-    // ?
-    DStandartItemModel* model = dynamic_cast<DStandartItemModel*>(tree1->model());
-    int tree1ColumnCount = 23;
-    model->setColumnCount(tree1ColumnCount);
-    for(int i=0;i<tree1ColumnCount;i++)
-    {
-        model->setHorizontalHeaderItem(i, QString(tr("Fr1 Tr1 Col%1")).arg(i));
-    }
-
-    for(int i=0;i<10;i++)
-    {
-        QList<QStandardItem *> items0;
-        items0.append(new QStandardItem("cr1"));
-        items0.append(new QStandardItem("cr1"));
-        for(int j=0;j<10;j++)
-        {
-            QList<QStandardItem *> items1;
-            items1.append(new QStandardItem("cr2"));
-            items1.append(new QStandardItem("cr2"));
-            items0[0]->appendRow(items1);
-            for(int k=0;k<10;k++)
-            {
-                QList<QStandardItem *> items2;
-                items2.append(new QStandardItem("cr3"));
-                items2.append(new QStandardItem("cr3"));
-                items1[0]->appendRow(items2);
-            }
-        }
-        model->appendRow(items0);
-    }
-
-    QMenu *tree1Menu = new QMenu;
-//    tree1Menu->addAction(tr("Delete"), tree1, SLOT (test()));
-//    tree1Menu->addSeparator (); // Добавляем разделитель
-    tree1Menu->addAction (QStringLiteral("Delete"), tree1, SLOT(removeSelectedRows()), QKeySequence::Delete);
-    tree1->setMenu(tree1Menu);
-
+    // mdi windows
+    QTimer::singleShot(0, this, SLOT(openSubWindowsAll()));
 }
 
 MainWindow::~MainWindow()
@@ -60,10 +27,53 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::test()
+void MainWindow::changeLanguage(language aLang)
 {
-    qDebug() << "MainWindow::test";
+    QString languageCode = "en";
+    if (aLang == language::russian)
+    {
+        languageCode = "ru";
+    }
+
+    QStringList files = {"qtbase", "treelistcontrol"};
+
+    for (QString &fileName: files)
+    {
+        if (m_translator.load(QString(":/translate/%1_%2.qm").arg(fileName).arg(languageCode))) {
+            QCoreApplication::installTranslator(&m_translator);
+        }
+    }
+
+    QLocale curLocale(QLocale(QString("%1_%2").arg(languageCode).arg(languageCode.toUpper())));
+    QLocale::setDefault(curLocale);
 }
 
+void MainWindow::changeEvent(QEvent * event)
+{
+    if (event->type() == QEvent::LanguageChange)
+    {
+        ui->retranslateUi(this);
+    }
+}
+
+void MainWindow::openSubWindowsAll()
+{
+    QSize mSize = ui->mdiArea->size();
+
+    WFrame2 *frame2 = new WFrame2(ui->mdiArea);
+    frame2->setWindowTitle("Frame #2");
+    frame2->setMinimumSize(0.5*mSize);
+    ui->mdiArea->addSubWindow(frame2);
+
+    WFrame1 *frame1 = new WFrame1(ui->mdiArea);
+    frame1->setWindowTitle("Frame #1");
+    frame1->setMinimumSize(0.5*mSize);
+    ui->mdiArea->addSubWindow(frame1);
+
+    frame2->show();
+    frame1->show();
+
+//    ui->mdiArea->cascadeSubWindows();
+}
 
 
