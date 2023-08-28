@@ -64,6 +64,8 @@ DTreeList::DTreeList(QWidget *parent) : QTreeView(parent),
     connect(header(), SIGNAL(customContextMenuRequested(const QPoint)), this , SLOT(slotHeaderMenu(const QPoint)));
 
     this->setStyleSheet("QTreeView{border: 1px solid transparent;}");
+
+    setUniformRowHeights(true);
 }
 
 DTreeList::~DTreeList()
