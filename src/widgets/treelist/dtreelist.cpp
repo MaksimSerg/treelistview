@@ -325,10 +325,12 @@ void DTreeList::removeSelectedRows()
 
     if (res != QMessageBox::Ok) return;
 
-    while(!selectionModel()->selectedIndexes().isEmpty()) {
-        const QModelIndex idx = selectionModel()->selectedIndexes().first();
+    setUpdatesEnabled(false);
+    while(!selectionModel()->selectedRows().isEmpty()) {
+        const QModelIndex idx = selectionModel()->selectedRows().first();
         model()->removeRow(idx.row(), idx.parent());
     }
+    setUpdatesEnabled(true);
 }
 
 void DTreeList::addMultiRows(bool isSubRow)
